@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "officerndapilib"
-version = "0.0.2"
+version = "0.0.1"
 authors = [
     { name="Gibran Dar", email="gibrandar@gmail.com" }
 ]
@@ -19,7 +19,10 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: Utilities"
 ]
-dependencies = []
+dependencies = [
+    "requests>=2.31.0",
+    "python_dotenv==1.0.0"
+]
 
 [project.urls]
 "Homepage" = "https://github.com/GibranDar/officernd-api-lib"
