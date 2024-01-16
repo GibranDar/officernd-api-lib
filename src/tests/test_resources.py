@@ -21,7 +21,7 @@ def test_get_all_resources():
 
 
 def test_get_resource_by_id():
-    resource_id = "639b43cd3add2ed1008582ae"  # Suite G.02
+    resource_id = "633c10e732747f9706f87681"
     resource = get_resource_by_id(resource_id)
     pprint(resource, indent=2, width=120)
     assert resource["_id"] == resource_id

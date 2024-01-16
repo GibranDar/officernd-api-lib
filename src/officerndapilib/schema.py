@@ -104,30 +104,6 @@ class ORNDBookingFeeDetail(TypedDict):
     valueCredits: list[str]
 
 
-class ORNDBookingRequest(TypedDict):
-    start: str  # ISO 8601
-    end: str  # ISO 8601
-    count: int
-    extras: Optional[dict[str, int]]
-    source: Optional[str]
-    summary: Optional[str]  # title of the reservation
-    description: Optional[str]
-    tentative: Optional[bool]
-    free: Optional[bool]
-    size: Optional[Union[int, dict[str, int]]]
-    rate: Optional[str]
-    resourceType: Optional[str]
-    office: Optional[str]
-
-
-class ORNDMemberBookingRequest(ORNDBookingRequest):
-    member: str
-
-
-class ORNDTeamBookingRequest(ORNDBookingRequest):
-    team: str
-
-
 class ORNDBooking(TypedDict):
     office: str
     orgnaization: str
@@ -206,14 +182,6 @@ class ORNDMember(TypedDict):
     modifiedBy: str
     status: ORNDMemberStatus
     paymentDetails: list[str]
-
-
-class ORNDAddMemberRequest(TypedDict):
-    name: str
-    email: str
-    startDate: str
-    description: Optional[str]
-    properties: Optional[dict[str, Any]]
 
 
 class ORNDAddress(TypedDict):
