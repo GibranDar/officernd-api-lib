@@ -157,4 +157,28 @@ def create_member(member_request: CreateORNDMemberRequest) -> list[ORNDMember]:
         raise Exception(response.json()["message"])
 
 
+def delete_members(ids: list[str]) -> list[ORNDMember]:
+    """Deletes a member in OfficeRND"""
+
+    token = get_ornd_token()
+    url = ORND_BASE_URL + ORND_ORG_SLUG + f"/members"
+    headers = {
+        "accept": "application/json",
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {token}",
+    }
+
+    response = requests.delete(url, headers=headers, json=ids)
+    if response.ok:
+        data: list[ORNDMember] = response.json()
+        return data
+    else:
+        raise Exception(response.json()["message"])
+
+
 # BOOKINGS
+
+
+def validate_booking_request(booking_request: CreateORNDMemberRequest):
+    """Validates a booking request"""
+    pass
