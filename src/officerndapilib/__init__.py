@@ -5,6 +5,7 @@ from officerndapilib.schema import (
     ORNDMember,
     ORNDResource,
     ORNDResourceType,
+    ORNDBooking,
 )
 
 from officerndapilib.queries import (
@@ -12,14 +13,16 @@ from officerndapilib.queries import (
     append_queries_to_url,
 )
 
-from officerndapilib.reqs import (
-    CreateORNDMemberRequest,
-)
-
 from .exceptions import HttpException
 
 ORND_BASE_URL = "https://app.officernd.com/api/v1/organizations/"
 ORND_ORG_SLUG = "re-defined"
+
+# ENV
+
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 # AUTH
@@ -86,6 +89,11 @@ def get_resource_by_id(id: str) -> ORNDResource:
         raise Exception(response.json()["message"])
 
 
+from officerndapilib.reqs import (
+    CreateORNDMemberRequest,
+    CreateORNDMemberBookingRequest,
+)
+
 # MEMBERS
 
 
@@ -106,8 +114,9 @@ def get_all_members(office: str) -> list[ORNDMember]:
 def get_member_by_id(id: str) -> ORNDMember:
     """Retrieves a specific member by ID from OfficeRND API"""
 
+    token = get_ornd_token()
     url = ORND_BASE_URL + ORND_ORG_SLUG + f"/members/{id}"
-    headers = {"accept": "application/json"}
+    headers = {"accept": "application/json", "Authorization": f"Bearer {token}"}
     response = requests.get(url, headers=headers)
     if response.ok:
         data: ORNDMember = response.json()
@@ -179,6 +188,23 @@ def delete_members(ids: list[str]) -> list[ORNDMember]:
 # BOOKINGS
 
 
-def validate_booking_request(booking_request: CreateORNDMemberRequest):
+def validate_booking_request(
+    booking_request: CreateORNDMemberBookingRequest,
+) -> list[ORNDBooking]:
     """Validates a booking request"""
-    pass
+
+    token = get_ornd_token()
+    url = ORND_BASE_URL + ORND_ORG_SLUG + f"/bookings/checkout-summary"
+    headers = {
+        "accept": "application/json",
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {token}",
+    }
+
+    response = requests.post(url, headers=headers, json=booking_request.data)
+    if response.ok:
+        data: list[ORNDBooking] = response.json()
+        return data
+    else:
+        print(response.json())
+        raise Exception(response.json()["message"])
