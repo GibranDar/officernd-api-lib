@@ -16,10 +16,11 @@ from officerndapilib.queries import (
 from .exceptions import HttpException
 
 ORND_BASE_URL = "https://app.officernd.com/api/v1/organizations/"
-ORND_ORG_SLUG = "re-defined"
+ORND_ORG_SLUG = "re-defined-test-account"
 
 # ENV
 
+import dotenv
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -35,10 +36,12 @@ def get_ornd_token() -> str:
         "content-type": "application/x-www-form-urlencoded",
     }
     body = {
-        "client_id": os.getenv("ORND_CLIENT_ID"),
-        "client_secret": os.getenv("ORND_CLIENT_SECRET"),
-        "grant_type": os.getenv("ORND_GRANT_TYPE"),
-        "scope": os.getenv("ORND_SCOPE"),
+        "client_id": dotenv.get_key(dotenv.find_dotenv(), "ORND_CLIENT_ID"),
+        "client_secret": dotenv.get_key(
+            dotenv.find_dotenv(), "ORND_CLIENT_SECRET"
+        ),
+        "grant_type": dotenv.get_key(dotenv.find_dotenv(), "ORND_GRANT_TYPE"),
+        "scope": dotenv.get_key(dotenv.find_dotenv(), "ORND_SCOPE"),
     }
     response = requests.post(url, headers=headers, data=body)
     if response.ok:
@@ -190,10 +193,12 @@ def delete_members(ids: list[str]) -> list[ORNDMember]:
 
 def validate_booking_request(
     booking_request: CreateORNDMemberBookingRequest,
+    token: str = "",
 ) -> list[ORNDBooking]:
     """Validates a booking request"""
 
-    token = get_ornd_token()
+    if not token:
+        token = get_ornd_token()
     url = ORND_BASE_URL + ORND_ORG_SLUG + f"/bookings/checkout-summary"
     headers = {
         "accept": "application/json",
@@ -208,3 +213,70 @@ def validate_booking_request(
     else:
         print(response.json())
         raise Exception(response.json()["message"])
+
+
+def create_booking(
+    booking_request: CreateORNDMemberBookingRequest,
+    token: str = "",
+) -> list[ORNDBooking]:
+    """Creates a booking in OfficeRND"""
+
+    if not token:
+        token = get_ornd_token()
+    url = ORND_BASE_URL + ORND_ORG_SLUG + f"/bookings/checkout"
+    headers = {
+        "accept": "application/json",
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {token}",
+    }
+    payload = booking_request.data
+
+    response = requests.post(url, headers=headers, json=payload)
+    if response.ok:
+        data: list[ORNDBooking] = response.json()
+        return data
+    else:
+        raise Exception(response.json()["message"])
+
+
+def validate_booking_creation(
+    booking_request: CreateORNDMemberBookingRequest, token: str = ""
+) -> list[ORNDBooking]:
+    """Validates a booking request made has been created in OfficeRND"""
+
+    if not token:
+        token = get_ornd_token()
+    url = ORND_BASE_URL + ORND_ORG_SLUG + f"/bookings/summary"
+    headers = {
+        "accept": "application/json",
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {token}",
+    }
+
+    booking_obj = {
+        "resourceId": booking_request.resourceId,
+        "start": {"dateTime": booking_request.start},
+        "end": {"dateTime": booking_request.end},
+    }
+    booking_target = {"member": booking_request.member}
+    payload = {
+        "booking": booking_obj,
+        "target": booking_target,
+    }
+
+    response = requests.post(url, headers=headers, json=payload)
+    if response.ok:
+        data: list[ORNDBooking] = response.json()
+        return data
+    else:
+        raise Exception(response.json()["message"])
+
+
+def booking_checkout(booking_request: CreateORNDMemberBookingRequest):
+    """Validates and creates a booking in OfficeRND"""
+
+    token = get_ornd_token()
+    validate_booking_request(booking_request, token)
+    validate_booking_creation(booking_request, token)
+    booking = create_booking(booking_request, token)
+    return booking

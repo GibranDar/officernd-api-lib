@@ -128,6 +128,13 @@ class CreateORNDWebBookingRequest:
             raise ValueError("Booking start is after end")
         return False
 
+    def is_weekend(self) -> bool:
+        start = datetime.fromisoformat(self.start)
+        end = datetime.fromisoformat(self.end)
+        if start.weekday() in [5, 6] or end.weekday() in [5, 6]:
+            raise ValueError("Booking is on a weekend")
+        return False
+
     def is_outside_office_hours(self) -> bool:
         start = datetime.fromisoformat(self.start)
         end = datetime.fromisoformat(self.end)

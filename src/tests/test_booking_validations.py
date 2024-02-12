@@ -9,10 +9,10 @@ load_dotenv()
 from officerndapilib.reqs import CreateORNDMemberBookingRequest
 
 WW_12MOORGATE = "65416bf72db05a7176b467ac"
-WW_12M_MEETING_ROOM = "65522d3a3e6de97c56019b32"  # LGC
-WW_12M_TEAM_ROOM = "65522f231e1a952e6a8f3655"  # 1F
+WW_12M_MEETING_ROOM = "65c38ead5e6d7bd36ed6a540"  # LGC
+WW_12M_TEAM_ROOM = "65c38ead5e6d7b6a9dd6a55c"  # 2F
 
-GD_MEMBER = "64ff1311a53ef27acade85bb"
+TEST_MEMBER = "65caaa8d836bde4655bca4de"
 
 TEST_BOOKING_PARTIAL = {
     "office": WW_12MOORGATE,
@@ -21,7 +21,7 @@ TEST_BOOKING_PARTIAL = {
     "summary": "Test Booking 1",
     "description": "Test Booking 1 Description",
     "free": False,
-    "member": GD_MEMBER,
+    "member": TEST_MEMBER,
 }
 
 TEST_BOOKING_START_DATE = (

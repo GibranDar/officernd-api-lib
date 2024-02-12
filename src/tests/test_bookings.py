@@ -6,11 +6,15 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from officerndapilib import validate_booking_request
+from officerndapilib import (
+    validate_booking_request,
+    create_booking,
+    validate_booking_creation,
+)
 from officerndapilib.reqs import CreateORNDMemberBookingRequest
 
 WW_12MOORGATE = "65416bf72db05a7176b467ac"
-WW_12M_MEETING_ROOM = "65522d3a3e6de97c56019b32"  # LGC
+WW_12M_MEETING_ROOM = "65c38ead5e6d7bd36ed6a540"  # LGC
 
 TEST_BOOKING_START_DATE = (
     datetime.now(timezone.utc) + timedelta(days=1)
@@ -18,22 +22,34 @@ TEST_BOOKING_START_DATE = (
 TEST_BOOKING_SUMMARY = "Test Booking 1"
 TEST_BOOKING_DESCRIPTION = "Test Booking 1 Description"
 
-GD_MEMBER = "64ff1311a53ef27acade85bb"
+TEST_MEMBER = "65caaa8d836bde4655bca4de"
+
+BOOKING_REQUEST = CreateORNDMemberBookingRequest(
+    office=WW_12MOORGATE,
+    resourceId=WW_12M_MEETING_ROOM,
+    start=TEST_BOOKING_START_DATE.isoformat(),
+    end=(TEST_BOOKING_START_DATE + timedelta(hours=1)).isoformat(),
+    count=1,
+    source="website",
+    summary=TEST_BOOKING_SUMMARY,
+    description=TEST_BOOKING_DESCRIPTION,
+    free=False,
+    member=TEST_MEMBER,
+)
 
 
 def test_validate_booking_request():
-    booking_request = CreateORNDMemberBookingRequest(
-        office=WW_12MOORGATE,
-        resourceId=WW_12M_MEETING_ROOM,
-        start=TEST_BOOKING_START_DATE.isoformat(),
-        end=(TEST_BOOKING_START_DATE + timedelta(hours=1)).isoformat(),
-        count=1,
-        source="website",
-        summary=TEST_BOOKING_SUMMARY,
-        description=TEST_BOOKING_DESCRIPTION,
-        free=False,
-        member=GD_MEMBER,
-    )
-    booking = validate_booking_request(booking_request)
+    booking = validate_booking_request(BOOKING_REQUEST)
     pprint(booking, sort_dicts=False, indent=2, width=120)
-    assert booking
+    assert len(booking) > 0
+
+
+def test_validate_booking_creation():
+    booking = validate_booking_creation(BOOKING_REQUEST)
+    assert len(booking) > 0
+
+
+def test_create_booking():
+    booking = create_booking(BOOKING_REQUEST)
+    pprint(booking, sort_dicts=False, indent=2, width=120)
+    assert len(booking) > 0
