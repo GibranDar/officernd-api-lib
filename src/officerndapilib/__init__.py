@@ -1,4 +1,5 @@
-import os
+from typing import cast
+
 import requests
 
 from officerndapilib.schema import (
@@ -15,9 +16,6 @@ from officerndapilib.queries import (
 
 from .exceptions import HttpException
 
-ORND_BASE_URL = "https://app.officernd.com/api/v1/organizations/"
-ORND_ORG_SLUG = "re-defined-test-account"
-
 # ENV
 
 import dotenv
@@ -25,6 +23,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+ORND_BASE_URL = cast(str, dotenv.get_key(dotenv.find_dotenv(), "ORND_BASE_URL"))
+ORND_ORG_SLUG = cast(str, dotenv.get_key(dotenv.find_dotenv(), "ORND_ORG_SLUG"))
 
 # AUTH
 
