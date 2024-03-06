@@ -23,7 +23,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-ORND_BASE_URL = cast(str, dotenv.get_key(dotenv.find_dotenv(), "ORND_BASE_URL"))
+ORND_BASE_URL = "https://app.officernd.com/api/v1/organizations/"
 ORND_ORG_SLUG = cast(str, dotenv.get_key(dotenv.find_dotenv(), "ORND_ORG_SLUG"))
 
 # AUTH
