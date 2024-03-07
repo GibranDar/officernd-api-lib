@@ -38,6 +38,11 @@ def attrs_is_ISO8601_datetime(instance, attribute, value):
         raise ValueError(f"{time} is not a valid time")
 
 
+def attrs_is_ISO8601_date(instance, attribute, value):
+    if not re.match(r"\d{4}-\d{2}-\d{2}", value):
+        raise ValueError(f"{value} is not a valid date")
+
+
 @define(kw_only=True)
 class CreateORNDMemberRequest:
     startDate: str = field(
@@ -191,3 +196,24 @@ class CreateORNDTeamBookingRequest(CreateORNDWebBookingRequest):
     team: str = field(
         validator=[validators.instance_of(str), attrs_valid_ornd_id]
     )
+
+
+@define(kw_only=True)
+class RetrieveORNDBookingOccurencesRequest:
+    office: str = field(
+        validator=[validators.instance_of(str), attrs_valid_ornd_id]
+    )
+    resource_id: str = field(
+        validator=[validators.instance_of(str), attrs_valid_ornd_id]
+    )
+    start: Optional[str] = field(
+        validator=[validators.instance_of(str), attrs_is_ISO8601_date]
+    )
+    end: Optional[str] = field(
+        validator=[validators.instance_of(str), attrs_is_ISO8601_date]
+    )
+    limit: int = field(default=100, validator=[validators.instance_of(int)])
+
+    @property
+    def data(self):
+        return asdict(self)

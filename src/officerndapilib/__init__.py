@@ -1,12 +1,12 @@
-from typing import cast
-
 import requests
+from datetime import datetime, timedelta
 
 from officerndapilib.schema import (
     ORNDAuth,
     ORNDMember,
     ORNDResource,
     ORNDResourceType,
+    ORNDBookingDateTime,
     ORNDBooking,
 )
 
@@ -17,12 +17,6 @@ from officerndapilib.queries import (
 
 from .exceptions import HttpException
 
-# ENV
-
-import dotenv
-from dotenv import load_dotenv
-
-load_dotenv()
 
 ORND_BASE_URL = "https://app.officernd.com/api/v1/organizations/"
 
@@ -94,6 +88,7 @@ def get_resource_by_id(organization: str, id: str) -> ORNDResource:
 from officerndapilib.reqs import (
     CreateORNDMemberRequest,
     CreateORNDMemberBookingRequest,
+    RetrieveORNDBookingOccurencesRequest,
 )
 
 # MEMBERS
@@ -192,6 +187,80 @@ def delete_members(
 # BOOKINGS
 
 
+def get_all_bookings(
+    token: str,
+    organization: str,
+    booking_occurence: RetrieveORNDBookingOccurencesRequest,
+) -> list[ORNDBooking]:
+    """Retrieves all bookings from OfficeRND API"""
+
+    url = ORND_BASE_URL + organization + f"/bookings/occurrences?"
+    url += f"$limit={booking_occurence.limit}&start={booking_occurence.start}&end={booking_occurence.end}\
+        &resourceId={booking_occurence.resource_id}&office={booking_occurence.office}"
+    headers = {
+        "accept": "application/json",
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {token}",
+    }
+    response = requests.get(url, headers=headers)
+    if response.ok:
+        data: list[ORNDBooking] = response.json()
+        return data
+    else:
+        raise Exception(response.json()["message"])
+
+
+def get_booking_times_available_on_date(
+    booking_times: list[dict[str, ORNDBookingDateTime]],
+    date: str,
+    start=9,
+    end=17,
+) -> list[str]:
+    """Returns a list of times available for booking on a given date"""
+
+    # array of times from start to end in 30 min intervals
+    times = [
+        f"{str(hour).zfill(2)}:{str(minute).zfill(2)}"
+        for hour in range(start, end)
+        for minute in [0, 30]
+    ]
+
+    # filter the times to only include times that are on the date
+    booking_times = [
+        booking_time
+        for booking_time in booking_times
+        if booking_time["start"]["dateTime"].split("T")[0] == date
+    ]
+
+    # filter the times that are already booked between the start[dateTime] and end[dateTime]
+    booked_intervals = []
+    for booking in booking_times:
+        # round down to the nearest 30 min interval
+        start_dt = datetime.fromisoformat(booking["start"]["dateTime"])
+        if start_dt.minute % 30 != 0:
+            start_dt = start_dt - timedelta(minutes=start_dt.minute % 30)
+
+        # round up to the nearest 30 min interval
+        end_dt = datetime.fromisoformat(booking["end"]["dateTime"])
+        if end_dt.minute % 30 != 0:
+            end_dt = end_dt + timedelta(minutes=30 - end_dt.minute % 30)
+
+        duration_30_min_intervals = (end_dt - start_dt).seconds / 1800
+
+        booked_intervals.append(start_dt.strftime("%H:%M"))
+        for _ in range(int(duration_30_min_intervals) - 1):
+            start_dt += timedelta(minutes=30)
+            booked_intervals.append(start_dt.strftime("%H:%M"))
+
+        print(booked_intervals)
+
+    # remove booked intervals from available times
+    times = [time for time in times if time not in booked_intervals]
+
+    # return list of hours that are available
+    return times
+
+
 def validate_booking_request(
     token: str,
     organization: str,
@@ -211,7 +280,6 @@ def validate_booking_request(
         data: list[ORNDBooking] = response.json()
         return data
     else:
-        print(response.json())
         raise Exception(response.json()["message"])
 
 

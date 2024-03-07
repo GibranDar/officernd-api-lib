@@ -11,9 +11,14 @@ from officerndapilib import (
     validate_booking_request,
     create_booking,
     validate_booking_creation,
+    get_all_bookings,
+    get_booking_times_available_on_date,
 )
 from officerndapilib.schema import ORNDAuth
-from officerndapilib.reqs import CreateORNDMemberBookingRequest
+from officerndapilib.reqs import (
+    CreateORNDMemberBookingRequest,
+    RetrieveORNDBookingOccurencesRequest,
+)
 
 ORND_AUTH = ORNDAuth(
     client_id=os.getenv("ORND_CLIENT_ID", ""),
@@ -75,3 +80,36 @@ def test_create_booking(token):
     booking = create_booking(token, ORND_ORGANIZATION, BOOKING_REQUEST)
     pprint(booking, sort_dicts=False, indent=2, width=120)
     assert len(booking) > 0
+
+
+def test_get_all_bookings(token):
+
+    request = RetrieveORNDBookingOccurencesRequest(
+        office=WW_12MOORGATE,
+        resource_id=WW_12M_MEETING_ROOM,
+        start=TEST_BOOKING_START_DATE.strftime("%Y-%m-%d"),
+        end=(TEST_BOOKING_START_DATE + timedelta(days=1)).strftime("%Y-%m-%d"),
+    )
+
+    pprint(request.data, sort_dicts=False, indent=2, width=120)
+
+    bookings = get_all_bookings(token, ORND_ORGANIZATION, request)
+    pprint(bookings, sort_dicts=False, indent=2, width=120)
+    assert len(bookings) > 0
+
+
+def test_get_booking_times_available_on_date(token):
+    request = RetrieveORNDBookingOccurencesRequest(
+        office=WW_12MOORGATE,
+        resource_id=WW_12M_MEETING_ROOM,
+        start=TEST_BOOKING_START_DATE.strftime("%Y-%m-%d"),
+        end=(TEST_BOOKING_START_DATE + timedelta(days=1)).strftime("%Y-%m-%d"),
+    )
+    bookings = get_all_bookings(token, ORND_ORGANIZATION, request)
+    booking_times = [
+        {"start": booking["start"], "end": booking["end"]}
+        for booking in bookings
+    ]
+    date = TEST_BOOKING_START_DATE.strftime("%Y-%m-%d")
+    times = get_booking_times_available_on_date(booking_times, date)
+    pprint(times, sort_dicts=False, indent=2, width=120)
