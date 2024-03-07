@@ -9,6 +9,14 @@ ORNDMemberStatus = Literal["active", "contact", "former"]
 ORNDUserAuthToken = TypedDict("ORNDUserAuthToken", {"token": str})
 
 
+class ORNDAuth(TypedDict):
+    client_id: str
+    client_secret: str
+    grant_type: str
+    scope: str
+    organization_slug: str
+
+
 class ORNDResourceAccess(TypedDict):
     full: bool
     public: bool

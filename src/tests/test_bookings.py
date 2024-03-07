@@ -7,11 +7,21 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from officerndapilib import (
+    get_ornd_token,
     validate_booking_request,
     create_booking,
     validate_booking_creation,
 )
+from officerndapilib.schema import ORNDAuth
 from officerndapilib.reqs import CreateORNDMemberBookingRequest
+
+ORND_AUTH = ORNDAuth(
+    client_id=os.getenv("ORND_CLIENT_ID", ""),
+    client_secret=os.getenv("ORND_CLIENT_SECRET", ""),
+    grant_type=os.getenv("ORND_GRANT_TYPE", ""),
+    scope=os.getenv("ORND_SCOPE", ""),
+    organization_slug="re-defined-test-account",
+)
 
 WW_12MOORGATE = "65416bf72db05a7176b467ac"
 WW_12M_MEETING_ROOM = "65c38ead5e6d7bd36ed6a540"  # LGC
@@ -38,18 +48,23 @@ BOOKING_REQUEST = CreateORNDMemberBookingRequest(
 )
 
 
-def test_validate_booking_request():
-    booking = validate_booking_request(BOOKING_REQUEST)
+@pytest.fixture
+def token():
+    return get_ornd_token(ORND_AUTH)
+
+
+def test_validate_booking_request(token):
+    booking = validate_booking_request(token, BOOKING_REQUEST)
     pprint(booking, sort_dicts=False, indent=2, width=120)
     assert len(booking) > 0
 
 
-def test_validate_booking_creation():
-    booking = validate_booking_creation(BOOKING_REQUEST)
+def test_validate_booking_creation(token):
+    booking = validate_booking_creation(token, BOOKING_REQUEST)
     assert len(booking) > 0
 
 
-def test_create_booking():
-    booking = create_booking(BOOKING_REQUEST)
+def test_create_booking(token):
+    booking = create_booking(token, BOOKING_REQUEST)
     pprint(booking, sort_dicts=False, indent=2, width=120)
     assert len(booking) > 0

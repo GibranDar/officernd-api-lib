@@ -3,6 +3,7 @@ from typing import cast
 import requests
 
 from officerndapilib.schema import (
+    ORNDAuth,
     ORNDMember,
     ORNDResource,
     ORNDResourceType,
@@ -29,19 +30,17 @@ ORND_ORG_SLUG = cast(str, dotenv.get_key(dotenv.find_dotenv(), "ORND_ORG_SLUG"))
 # AUTH
 
 
-def get_ornd_token() -> str:
+def get_ornd_token(auth: ORNDAuth) -> str:
     url = "https://identity.officernd.com/oauth/token"
     headers = {
         "accept": "application/json",
         "content-type": "application/x-www-form-urlencoded",
     }
     body = {
-        "client_id": dotenv.get_key(dotenv.find_dotenv(), "ORND_CLIENT_ID"),
-        "client_secret": dotenv.get_key(
-            dotenv.find_dotenv(), "ORND_CLIENT_SECRET"
-        ),
-        "grant_type": dotenv.get_key(dotenv.find_dotenv(), "ORND_GRANT_TYPE"),
-        "scope": dotenv.get_key(dotenv.find_dotenv(), "ORND_SCOPE"),
+        "client_id": auth["client_id"],
+        "client_secret": auth["client_secret"],
+        "grant_type": auth["grant_type"],
+        "scope": auth["scope"],
     }
     response = requests.post(url, headers=headers, data=body)
     if response.ok:
@@ -56,13 +55,13 @@ def get_ornd_token() -> str:
 
 
 def get_all_resources(
+    token: str,
     office: str,
     type: ORNDResourceType,
     queries: list[ORNDResourceQuery] = [],
 ) -> list[ORNDResource]:
     """Retrieves resources for a given office location from OfficeRND API"""
 
-    token = get_ornd_token()
     url = ORND_BASE_URL + ORND_ORG_SLUG + f"/resources"
     url = append_queries_to_url(url, queries)
     url += f"&office={office}&type={type}"
@@ -100,10 +99,9 @@ from officerndapilib.reqs import (
 # MEMBERS
 
 
-def get_all_members(office: str) -> list[ORNDMember]:
+def get_all_members(token: str, office: str) -> list[ORNDMember]:
     """Retrieves all members from OfficeRND API"""
 
-    token = get_ornd_token()
     url = ORND_BASE_URL + ORND_ORG_SLUG + f"/members?office={office}"
     headers = {"accept": "application/json", "Authorization": f"Bearer {token}"}
     response = requests.get(url, headers=headers)
@@ -114,10 +112,9 @@ def get_all_members(office: str) -> list[ORNDMember]:
         raise Exception(response.json()["message"])
 
 
-def get_member_by_id(id: str) -> ORNDMember:
+def get_member_by_id(token: str, id: str) -> ORNDMember:
     """Retrieves a specific member by ID from OfficeRND API"""
 
-    token = get_ornd_token()
     url = ORND_BASE_URL + ORND_ORG_SLUG + f"/members/{id}"
     headers = {"accept": "application/json", "Authorization": f"Bearer {token}"}
     response = requests.get(url, headers=headers)
@@ -128,10 +125,9 @@ def get_member_by_id(id: str) -> ORNDMember:
         raise Exception(response.json()["message"])
 
 
-def get_member_by_email(office: str, email: str) -> ORNDMember:
+def get_member_by_email(token: str, office: str, email: str) -> ORNDMember:
     """Retrieves a specific member by email from OfficeRND API"""
 
-    token = get_ornd_token()
     url = ORND_BASE_URL + ORND_ORG_SLUG + f"/members?office={office}"
     headers = {"accept": "application/json", "Authorization": f"Bearer {token}"}
     response = requests.get(url, headers=headers)
@@ -149,10 +145,11 @@ def get_member_by_email(office: str, email: str) -> ORNDMember:
         raise Exception(response.json()["message"])
 
 
-def create_member(member_request: CreateORNDMemberRequest) -> list[ORNDMember]:
+def create_member(
+    token: str, member_request: CreateORNDMemberRequest
+) -> list[ORNDMember]:
     """Creates a member in OfficeRND"""
 
-    token = get_ornd_token()
     url = ORND_BASE_URL + ORND_ORG_SLUG + f"/members"
     headers = {
         "accept": "application/json",
@@ -169,10 +166,9 @@ def create_member(member_request: CreateORNDMemberRequest) -> list[ORNDMember]:
         raise Exception(response.json()["message"])
 
 
-def delete_members(ids: list[str]) -> list[ORNDMember]:
+def delete_members(token: str, ids: list[str]) -> list[ORNDMember]:
     """Deletes a member in OfficeRND"""
 
-    token = get_ornd_token()
     url = ORND_BASE_URL + ORND_ORG_SLUG + f"/members"
     headers = {
         "accept": "application/json",
@@ -192,13 +188,11 @@ def delete_members(ids: list[str]) -> list[ORNDMember]:
 
 
 def validate_booking_request(
+    token: str,
     booking_request: CreateORNDMemberBookingRequest,
-    token: str = "",
 ) -> list[ORNDBooking]:
     """Validates a booking request"""
 
-    if not token:
-        token = get_ornd_token()
     url = ORND_BASE_URL + ORND_ORG_SLUG + f"/bookings/checkout-summary"
     headers = {
         "accept": "application/json",
@@ -216,13 +210,11 @@ def validate_booking_request(
 
 
 def create_booking(
+    token: str,
     booking_request: CreateORNDMemberBookingRequest,
-    token: str = "",
 ) -> list[ORNDBooking]:
     """Creates a booking in OfficeRND"""
 
-    if not token:
-        token = get_ornd_token()
     url = ORND_BASE_URL + ORND_ORG_SLUG + f"/bookings/checkout"
     headers = {
         "accept": "application/json",
@@ -240,12 +232,11 @@ def create_booking(
 
 
 def validate_booking_creation(
-    booking_request: CreateORNDMemberBookingRequest, token: str = ""
+    token: str,
+    booking_request: CreateORNDMemberBookingRequest,
 ) -> list[ORNDBooking]:
     """Validates a booking request made has been created in OfficeRND"""
 
-    if not token:
-        token = get_ornd_token()
     url = ORND_BASE_URL + ORND_ORG_SLUG + f"/bookings/summary"
     headers = {
         "accept": "application/json",
@@ -272,11 +263,12 @@ def validate_booking_creation(
         raise Exception(response.json()["message"])
 
 
-def booking_checkout(booking_request: CreateORNDMemberBookingRequest):
+def booking_checkout(
+    token: str,
+    booking_request: CreateORNDMemberBookingRequest,
+):
     """Validates and creates a booking in OfficeRND"""
-
-    token = get_ornd_token()
-    validate_booking_request(booking_request, token)
-    validate_booking_creation(booking_request, token)
-    booking = create_booking(booking_request, token)
+    validate_booking_request(token, booking_request)
+    validate_booking_creation(token, booking_request)
+    booking = create_booking(token, booking_request)
     return booking

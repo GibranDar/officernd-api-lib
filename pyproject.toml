@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "officerndapilib"
-version = "0.0.3"
+version = "0.0.4"
 authors = [
     { name="Gibran Dar", email="gibrandar@gmail.com" }
 ]
