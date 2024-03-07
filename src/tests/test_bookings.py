@@ -23,6 +23,8 @@ ORND_AUTH = ORNDAuth(
     organization_slug="re-defined-test-account",
 )
 
+ORND_ORGANIZATION = os.getenv("ORND_ORG_SLUG", "")
+
 WW_12MOORGATE = "65416bf72db05a7176b467ac"
 WW_12M_MEETING_ROOM = "65c38ead5e6d7bd36ed6a540"  # LGC
 
@@ -35,6 +37,7 @@ TEST_BOOKING_DESCRIPTION = "Test Booking 1 Description"
 TEST_MEMBER = "65caaa8d836bde4655bca4de"
 
 BOOKING_REQUEST = CreateORNDMemberBookingRequest(
+    organization=ORND_ORGANIZATION,
     office=WW_12MOORGATE,
     resourceId=WW_12M_MEETING_ROOM,
     start=TEST_BOOKING_START_DATE.isoformat(),
@@ -54,17 +57,21 @@ def token():
 
 
 def test_validate_booking_request(token):
-    booking = validate_booking_request(token, BOOKING_REQUEST)
+    booking = validate_booking_request(
+        token, ORND_ORGANIZATION, BOOKING_REQUEST
+    )
     pprint(booking, sort_dicts=False, indent=2, width=120)
     assert len(booking) > 0
 
 
 def test_validate_booking_creation(token):
-    booking = validate_booking_creation(token, BOOKING_REQUEST)
+    booking = validate_booking_creation(
+        token, ORND_ORGANIZATION, BOOKING_REQUEST
+    )
     assert len(booking) > 0
 
 
 def test_create_booking(token):
-    booking = create_booking(token, BOOKING_REQUEST)
+    booking = create_booking(token, ORND_ORGANIZATION, BOOKING_REQUEST)
     pprint(booking, sort_dicts=False, indent=2, width=120)
     assert len(booking) > 0

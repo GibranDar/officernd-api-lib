@@ -12,6 +12,7 @@ from officerndapilib import (
 )
 from officerndapilib.schema import ORNDAuth
 
+ORND_ORGANIZATION = os.getenv("ORND_ORG_SLUG", "")
 ORND_OFFICE_ID = "65416bf72db05a7176b467ac"
 
 ORND_AUTH = ORNDAuth(
@@ -31,6 +32,7 @@ def token():
 def test_get_all_resources(token):
     resources = get_all_resources(
         token,
+        ORND_ORGANIZATION,
         ORND_OFFICE_ID,
         "team_room",
         queries=[("availableFrom", "2024-01-02"), ("type", "meeting_room")],
@@ -42,6 +44,6 @@ def test_get_all_resources(token):
 
 def test_get_resource_by_id():
     resource_id = "65c38ead5e6d7bd36ed6a540"  # LGC
-    resource = get_resource_by_id(resource_id)
+    resource = get_resource_by_id(ORND_ORGANIZATION, resource_id)
     pprint(resource, indent=2, width=120)
     assert resource["_id"] == resource_id

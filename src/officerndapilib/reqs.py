@@ -77,6 +77,7 @@ class CreateORNDTeamMemberRequest(CreateORNDMemberRequest):
 
 @define(kw_only=True, frozen=True)
 class CreateORNDWebBookingRequest:
+    organization: str = field(validator=[validators.instance_of(str)])
     office: str = field(
         validator=[validators.instance_of(str), attrs_valid_ornd_id]
     )
@@ -112,7 +113,7 @@ class CreateORNDWebBookingRequest:
         self.run_validations()
 
     def is_bookable_resource(self) -> bool:
-        resource = get_resource_by_id(self.resourceId)
+        resource = get_resource_by_id(self.organization, self.resourceId)
         print(resource["type"])
         if resource["type"] not in [
             "meeting_room",

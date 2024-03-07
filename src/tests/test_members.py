@@ -23,6 +23,8 @@ ORND_AUTH = ORNDAuth(
     organization_slug="re-defined-test-account",
 )
 
+ORND_ORGANIZATION = os.getenv("ORND_ORG_SLUG", "")
+
 WW_12MOORGATE = "65416bf72db05a7176b467ac"
 LRH = "633ac05fb85f276bea3f644b"
 
@@ -47,7 +49,7 @@ def test_create_member(token):
         properties={},
         address={},
     )
-    member = create_member(token, member_request)
+    member = create_member(token, ORND_ORGANIZATION, member_request)
     pprint(member, indent=2, width=120)
     assert member[0].get("_id")
     assert member[0]["name"] == TEST_MEMBER_NAME
@@ -56,20 +58,24 @@ def test_create_member(token):
 
 
 def test_get_all_members(token):
-    members = get_all_members(token, WW_12MOORGATE)
+    members = get_all_members(token, ORND_ORGANIZATION, WW_12MOORGATE)
     assert len(members) > 0
 
 
 def test_get_member_by_email(token):
-    member = get_member_by_email(token, WW_12MOORGATE, TEST_MEMBER_EMAIL)
+    member = get_member_by_email(
+        token, ORND_ORGANIZATION, WW_12MOORGATE, TEST_MEMBER_EMAIL
+    )
     pprint(member, indent=2, width=120)
     assert member["email"] == TEST_MEMBER_EMAIL
 
 
 def test_delete_members(token):
-    member = get_member_by_email(token, WW_12MOORGATE, TEST_MEMBER_EMAIL)
+    member = get_member_by_email(
+        token, ORND_ORGANIZATION, WW_12MOORGATE, TEST_MEMBER_EMAIL
+    )
     member_ids = [member["_id"]]
-    deleted_members = delete_members(token, member_ids)
+    deleted_members = delete_members(token, ORND_ORGANIZATION, member_ids)
     pprint(deleted_members, indent=2, width=120)
     assert len(deleted_members) == len(member_ids)
     for deleted in deleted_members:
