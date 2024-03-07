@@ -164,9 +164,9 @@ class CreateORNDWebBookingRequest:
         return False
 
     def is_greater_than_30_days_in_future(self) -> bool:
-        start = datetime.fromisoformat(self.start)
-        end = datetime.fromisoformat(self.end)
-        if (end - start).days > 30:
+        now = datetime.now(timezone.utc)
+        booking_start = datetime.fromisoformat(self.start)
+        if (booking_start - now).days > 30:
             raise ValueError("Booking is greater than 30 days")
         return False
 

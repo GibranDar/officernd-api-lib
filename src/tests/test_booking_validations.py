@@ -120,7 +120,7 @@ def test_booking_is_greater_than_30_days_in_future():
         booking_request = CreateORNDMemberBookingRequest(
             organization=ORND_ORGANIZATION,
             resourceId=WW_12M_MEETING_ROOM,
-            start=TEST_BOOKING_START_DATE.isoformat(),
-            end=(future_date + timedelta(hours=8)).isoformat(),
+            start=future_date.isoformat(),
+            end=(future_date + timedelta(hours=4)).isoformat(),
             **TEST_BOOKING_PARTIAL,  # type:ignore[arg-type]
         )
