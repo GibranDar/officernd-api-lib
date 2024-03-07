@@ -54,13 +54,16 @@ class CreateORNDMemberRequest:
         validator=[validators.optional(validators.instance_of(str))],
     )
     description: Optional[str] = field(
-        validator=[validators.optional(validators.instance_of(str))]
+        default=None,
+        validator=[validators.optional(validators.instance_of(str))],
     )
     properties: Optional[dict[str, str]] = field(
-        validator=[validators.optional(validators.instance_of(dict))]
+        default=None,
+        validator=[validators.optional(validators.instance_of(dict))],
     )
     address: Optional[dict[str, str]] = field(
-        validator=[validators.optional(validators.instance_of(dict))]
+        default=None,
+        validator=[validators.optional(validators.instance_of(dict))],
     )
 
     @property
@@ -94,7 +97,8 @@ class CreateORNDWebBookingRequest:
         validator=[validators.instance_of(str)]
     )  # Booking Title
     description: Optional[str] = field(
-        validator=[validators.optional(validators.instance_of(str))]
+        default=None,
+        validator=[validators.optional(validators.instance_of(str))],
     )  # Booking Description
     count: int = field(default=1, validator=[validators.instance_of(int)])
     source: str = field(
