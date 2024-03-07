@@ -137,14 +137,13 @@ def get_member_by_email(
     response = requests.get(url, headers=headers)
     if response.ok:
         data: list[ORNDMember] = response.json()
-
         try:
             member: ORNDMember = next(
                 member for member in data if member["email"] == email
             )
             return member
         except StopIteration:
-            raise Exception(f"Member with email '{email}' not found")
+            raise StopIteration(f"Member with email '{email}' not found")
     else:
         raise Exception(response.json()["message"])
 
