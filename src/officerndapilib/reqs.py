@@ -164,6 +164,7 @@ class CreateORNDWebBookingRequest:
 
     def is_in_the_past(self) -> bool:
         start = datetime.fromisoformat(self.start)
+        start = start.replace(tzinfo=timezone.utc)
         if start < datetime.now(timezone.utc):
             raise ValueError("Booking is in the past")
         return False
@@ -171,6 +172,7 @@ class CreateORNDWebBookingRequest:
     def is_greater_than_30_days_in_future(self) -> bool:
         now = datetime.now(timezone.utc)
         booking_start = datetime.fromisoformat(self.start)
+        booking_start = booking_start.replace(tzinfo=timezone.utc)
         if (booking_start - now).days > 30:
             raise ValueError("Booking is greater than 30 days")
         return False
