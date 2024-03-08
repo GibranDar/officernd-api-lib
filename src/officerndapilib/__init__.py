@@ -215,14 +215,15 @@ def get_booking_times_available_on_date(
     date: str,
     start=9,
     end=17,
+    interval=60,
 ) -> list[str]:
     """Returns a list of times available for booking on a given date"""
 
-    # array of times from start to end in 30 min intervals
+    # array of times from start to end in min intervals
     times = [
-        f"{str(hour).zfill(2)}:{str(minute).zfill(2)}"
+        f"{hour:02d}:{min:02d}"
         for hour in range(start, end)
-        for minute in [0, 30]
+        for min in range(0, 60, interval)
     ]
 
     # filter the times to only include times that are on the date
@@ -235,21 +236,23 @@ def get_booking_times_available_on_date(
     # filter the times that are already booked between the start[dateTime] and end[dateTime]
     booked_intervals = []
     for booking in booking_times:
-        # round down to the nearest 30 min interval
+        # round down to the nearest min interval
         start_dt = datetime.fromisoformat(booking["start"]["dateTime"])
-        if start_dt.minute % 30 != 0:
-            start_dt = start_dt - timedelta(minutes=start_dt.minute % 30)
+        if start_dt.minute % interval != 0:
+            start_dt = start_dt - timedelta(minutes=start_dt.minute % interval)
 
-        # round up to the nearest 30 min interval
+        # round up to the nearest min interval
         end_dt = datetime.fromisoformat(booking["end"]["dateTime"])
-        if end_dt.minute % 30 != 0:
-            end_dt = end_dt + timedelta(minutes=30 - end_dt.minute % 30)
+        if end_dt.minute % interval != 0:
+            end_dt = end_dt + timedelta(
+                minutes=interval - end_dt.minute % interval
+            )
 
-        duration_30_min_intervals = (end_dt - start_dt).seconds / 1800
+        duration_min_intervals = (end_dt - start_dt).seconds / 1800
 
         booked_intervals.append(start_dt.strftime("%H:%M"))
-        for _ in range(int(duration_30_min_intervals) - 1):
-            start_dt += timedelta(minutes=30)
+        for _ in range(int(duration_min_intervals) - 1):
+            start_dt += timedelta(minutes=interval)
             booked_intervals.append(start_dt.strftime("%H:%M"))
 
         print(booked_intervals)
