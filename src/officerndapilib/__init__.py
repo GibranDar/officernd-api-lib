@@ -15,7 +15,7 @@ from officerndapilib.queries import (
     append_queries_to_url,
 )
 
-from .exceptions import HttpException
+from .exceptions import HttpException, ValidationException
 
 
 ORND_BASE_URL = "https://app.officernd.com/api/v1/organizations/"

@@ -5,6 +5,7 @@ from typing import Optional
 from attrs import define, field, validators, converters, asdict
 
 from officerndapilib import get_resource_by_id
+from officerndapilib.exceptions import ValidationException
 
 
 def attrs_is_email(instance, attribute, value):
@@ -127,21 +128,23 @@ class CreateORNDWebBookingRequest:
             "meeting_room",
             "hotdesk",
         ]:
-            raise ValueError(f"{resource['name']} is not a bookable resource")
+            raise ValidationException(
+                f"{resource['name']} is not a bookable resource"
+            )
         return False
 
     def is_start_before_end(self) -> bool:
         start = datetime.fromisoformat(self.start)
         end = datetime.fromisoformat(self.end)
         if start > end:
-            raise ValueError("Booking start is after end")
+            raise ValidationException("Booking start is after end")
         return True
 
     def is_weekday(self) -> bool:
         start = datetime.fromisoformat(self.start)
         end = datetime.fromisoformat(self.end)
         if start.weekday() in [5, 6] or end.weekday() in [5, 6]:
-            raise ValueError("Booking is on a weekend")
+            raise ValidationException("Booking is on a weekend")
         return True
 
     def is_not_outside_office_hours(self) -> bool:
@@ -151,21 +154,21 @@ class CreateORNDWebBookingRequest:
             start.time() < datetime.strptime("09:00", "%H:%M").time()
             or end.time() > datetime.strptime("18:00", "%H:%M").time()
         ):
-            raise ValueError("Booking is outside office hours")
+            raise ValidationException("Booking is outside office hours")
         return True
 
     def is_not_longer_than_8_hours(self) -> bool:
         start = datetime.fromisoformat(self.start)
         end = datetime.fromisoformat(self.end)
         if (end - start).seconds / 3600 > 8:
-            raise ValueError("Booking is longer than 8 hours")
+            raise ValidationException("Booking is longer than 8 hours")
         return True
 
     def is_not_in_the_past(self) -> bool:
         start = datetime.fromisoformat(self.start)
         start = start.replace(tzinfo=timezone.utc)
         if start < datetime.now(timezone.utc):
-            raise ValueError("Booking is in the past")
+            raise ValidationException("Booking is in the past")
         return True
 
     def is_not_greater_than_30_days_in_future(self) -> bool:
@@ -173,7 +176,7 @@ class CreateORNDWebBookingRequest:
         booking_start = datetime.fromisoformat(self.start)
         booking_start = booking_start.replace(tzinfo=timezone.utc)
         if (booking_start - now).days > 30:
-            raise ValueError("Booking is greater than 30 days")
+            raise ValidationException("Booking is greater than 30 days")
         return True
 
     def run_validations(self):

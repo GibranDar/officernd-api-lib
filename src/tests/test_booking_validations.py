@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from officerndapilib.reqs import CreateORNDMemberBookingRequest
+from officerndapilib.exceptions import ValidationException
 
 ORND_ORGANIZATION = os.getenv("ORND_ORG_SLUG", "")
 
@@ -43,7 +44,7 @@ def test_validates_booking_request():
 
 
 def test_booking_is_bookable_resource():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValidationException):
         booking_request = CreateORNDMemberBookingRequest(
             organization=ORND_ORGANIZATION,
             resource_id=WW_12M_TEAM_ROOM,
@@ -54,7 +55,7 @@ def test_booking_is_bookable_resource():
 
 
 def test_booking_start_is_before_end():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValidationException):
         booking_request = CreateORNDMemberBookingRequest(
             organization=ORND_ORGANIZATION,
             resource_id=WW_12M_MEETING_ROOM,
@@ -65,7 +66,7 @@ def test_booking_start_is_before_end():
 
 
 def test_booking_is_before_office_hours():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValidationException):
         end = TEST_BOOKING_START_DATE + timedelta(hours=1)
         booking_request = CreateORNDMemberBookingRequest(
             organization=ORND_ORGANIZATION,
@@ -79,7 +80,7 @@ def test_booking_is_before_office_hours():
 
 
 def test_booking_is_after_office_hours():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValidationException):
         booking_request = CreateORNDMemberBookingRequest(
             organization=ORND_ORGANIZATION,
             resource_id=WW_12M_MEETING_ROOM,
@@ -92,7 +93,7 @@ def test_booking_is_after_office_hours():
 
 
 def test_booking_is_longer_than_8_hours():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValidationException):
         booking_request = CreateORNDMemberBookingRequest(
             organization=ORND_ORGANIZATION,
             resource_id=WW_12M_MEETING_ROOM,
@@ -103,7 +104,7 @@ def test_booking_is_longer_than_8_hours():
 
 
 def test_booking_is_in_the_past():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValidationException):
         past_date = TEST_BOOKING_START_DATE + timedelta(days=-1)
         booking_request = CreateORNDMemberBookingRequest(
             organization=ORND_ORGANIZATION,
@@ -115,7 +116,7 @@ def test_booking_is_in_the_past():
 
 
 def test_booking_is_greater_than_30_days_in_future():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValidationException):
         future_date = TEST_BOOKING_START_DATE + timedelta(days=31)
         booking_request = CreateORNDMemberBookingRequest(
             organization=ORND_ORGANIZATION,
