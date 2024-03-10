@@ -179,6 +179,7 @@ class CreateORNDWebBookingRequest:
     def run_validations(self):
         self.is_bookable_resource()
         self.is_start_before_end()
+        self.is_weekday()
         self.is_not_in_the_past()
         self.is_not_outside_office_hours()
         self.is_not_longer_than_8_hours()
