@@ -123,7 +123,6 @@ class CreateORNDWebBookingRequest:
 
     def is_bookable_resource(self) -> bool:
         resource = get_resource_by_id(self.organization, self.resourceId)
-        print(resource["type"])
         if resource["type"] not in [
             "meeting_room",
             "hotdesk",
@@ -136,16 +135,16 @@ class CreateORNDWebBookingRequest:
         end = datetime.fromisoformat(self.end)
         if start > end:
             raise ValueError("Booking start is after end")
-        return False
+        return True
 
-    def is_weekend(self) -> bool:
+    def is_weekday(self) -> bool:
         start = datetime.fromisoformat(self.start)
         end = datetime.fromisoformat(self.end)
         if start.weekday() in [5, 6] or end.weekday() in [5, 6]:
             raise ValueError("Booking is on a weekend")
-        return False
+        return True
 
-    def is_outside_office_hours(self) -> bool:
+    def is_not_outside_office_hours(self) -> bool:
         start = datetime.fromisoformat(self.start)
         end = datetime.fromisoformat(self.end)
         if (
@@ -153,37 +152,37 @@ class CreateORNDWebBookingRequest:
             or end.time() > datetime.strptime("18:00", "%H:%M").time()
         ):
             raise ValueError("Booking is outside office hours")
-        return False
+        return True
 
-    def is_longer_than_8_hours(self) -> bool:
+    def is_not_longer_than_8_hours(self) -> bool:
         start = datetime.fromisoformat(self.start)
         end = datetime.fromisoformat(self.end)
         if (end - start).seconds / 3600 > 8:
             raise ValueError("Booking is longer than 8 hours")
-        return False
+        return True
 
-    def is_in_the_past(self) -> bool:
+    def is_not_in_the_past(self) -> bool:
         start = datetime.fromisoformat(self.start)
         start = start.replace(tzinfo=timezone.utc)
         if start < datetime.now(timezone.utc):
             raise ValueError("Booking is in the past")
-        return False
+        return True
 
-    def is_greater_than_30_days_in_future(self) -> bool:
+    def is_not_greater_than_30_days_in_future(self) -> bool:
         now = datetime.now(timezone.utc)
         booking_start = datetime.fromisoformat(self.start)
         booking_start = booking_start.replace(tzinfo=timezone.utc)
         if (booking_start - now).days > 30:
             raise ValueError("Booking is greater than 30 days")
-        return False
+        return True
 
     def run_validations(self):
         self.is_bookable_resource()
         self.is_start_before_end()
-        self.is_in_the_past()
-        self.is_outside_office_hours()
-        self.is_longer_than_8_hours()
-        self.is_greater_than_30_days_in_future()
+        self.is_not_in_the_past()
+        self.is_not_outside_office_hours()
+        self.is_not_longer_than_8_hours()
+        self.is_not_greater_than_30_days_in_future()
 
 
 @define(kw_only=True)
