@@ -89,7 +89,7 @@ class CreateORNDWebBookingRequest:
     office: str = field(
         validator=[validators.instance_of(str), attrs_valid_ornd_id]
     )
-    resourceId: str = field(
+    resource_id: str = field(
         validator=[validators.instance_of(str), attrs_valid_ornd_id]
     )
     start: str = field(
@@ -122,7 +122,7 @@ class CreateORNDWebBookingRequest:
         self.run_validations()
 
     def is_bookable_resource(self) -> bool:
-        resource = get_resource_by_id(self.organization, self.resourceId)
+        resource = get_resource_by_id(self.organization, self.resource_id)
         if resource["type"] not in [
             "meeting_room",
             "hotdesk",

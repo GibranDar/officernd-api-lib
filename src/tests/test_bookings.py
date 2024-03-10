@@ -44,7 +44,7 @@ TEST_MEMBER = "65caaa8d836bde4655bca4de"
 BOOKING_REQUEST = CreateORNDMemberBookingRequest(
     organization=ORND_ORGANIZATION,
     office=WW_12MOORGATE,
-    resourceId=WW_12M_MEETING_ROOM,
+    resource_id=WW_12M_MEETING_ROOM,
     start=TEST_BOOKING_START_DATE.isoformat(),
     end=(TEST_BOOKING_START_DATE + timedelta(hours=1)).isoformat(),
     count=1,

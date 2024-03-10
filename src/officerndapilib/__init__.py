@@ -324,7 +324,7 @@ def validate_booking_creation(
     }
 
     booking_obj = {
-        "resourceId": booking_request.resourceId,
+        "resourceId": booking_request.resource_id,
         "start": {"dateTime": booking_request.start},
         "end": {"dateTime": booking_request.end},
     }

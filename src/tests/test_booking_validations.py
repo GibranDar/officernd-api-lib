@@ -34,7 +34,7 @@ TEST_BOOKING_START_DATE = (
 def test_validates_booking_request():
     booking_request = CreateORNDMemberBookingRequest(
         organization=ORND_ORGANIZATION,
-        resourceId=WW_12M_MEETING_ROOM,
+        resource_id=WW_12M_MEETING_ROOM,
         start=TEST_BOOKING_START_DATE.isoformat(),
         end=(TEST_BOOKING_START_DATE + timedelta(hours=1)).isoformat(),
         **TEST_BOOKING_PARTIAL,  # type:ignore[arg-type]
@@ -46,7 +46,7 @@ def test_booking_is_bookable_resource():
     with pytest.raises(ValueError):
         booking_request = CreateORNDMemberBookingRequest(
             organization=ORND_ORGANIZATION,
-            resourceId=WW_12M_TEAM_ROOM,
+            resource_id=WW_12M_TEAM_ROOM,
             start=TEST_BOOKING_START_DATE.isoformat(),
             end=(TEST_BOOKING_START_DATE + timedelta(hours=1)).isoformat(),
             **TEST_BOOKING_PARTIAL,  # type:ignore[arg-type]
@@ -57,7 +57,7 @@ def test_booking_start_is_before_end():
     with pytest.raises(ValueError):
         booking_request = CreateORNDMemberBookingRequest(
             organization=ORND_ORGANIZATION,
-            resourceId=WW_12M_MEETING_ROOM,
+            resource_id=WW_12M_MEETING_ROOM,
             start=TEST_BOOKING_START_DATE.replace(hour=11).isoformat(),
             end=(TEST_BOOKING_START_DATE + timedelta(hours=-1)).isoformat(),
             **TEST_BOOKING_PARTIAL,  # type:ignore[arg-type]
@@ -69,7 +69,7 @@ def test_booking_is_before_office_hours():
         end = TEST_BOOKING_START_DATE + timedelta(hours=1)
         booking_request = CreateORNDMemberBookingRequest(
             organization=ORND_ORGANIZATION,
-            resourceId=WW_12M_MEETING_ROOM,
+            resource_id=WW_12M_MEETING_ROOM,
             start=TEST_BOOKING_START_DATE.replace(
                 hour=8, minute=0, second=0
             ).isoformat(),
@@ -82,7 +82,7 @@ def test_booking_is_after_office_hours():
     with pytest.raises(ValueError):
         booking_request = CreateORNDMemberBookingRequest(
             organization=ORND_ORGANIZATION,
-            resourceId=WW_12M_MEETING_ROOM,
+            resource_id=WW_12M_MEETING_ROOM,
             start=TEST_BOOKING_START_DATE.isoformat(),
             end=TEST_BOOKING_START_DATE.replace(
                 hour=19, minute=0, second=0
@@ -95,7 +95,7 @@ def test_booking_is_longer_than_8_hours():
     with pytest.raises(ValueError):
         booking_request = CreateORNDMemberBookingRequest(
             organization=ORND_ORGANIZATION,
-            resourceId=WW_12M_MEETING_ROOM,
+            resource_id=WW_12M_MEETING_ROOM,
             start=TEST_BOOKING_START_DATE.isoformat(),
             end=(TEST_BOOKING_START_DATE + timedelta(hours=9)).isoformat(),
             **TEST_BOOKING_PARTIAL,  # type:ignore[arg-type]
@@ -107,7 +107,7 @@ def test_booking_is_in_the_past():
         past_date = TEST_BOOKING_START_DATE + timedelta(days=-1)
         booking_request = CreateORNDMemberBookingRequest(
             organization=ORND_ORGANIZATION,
-            resourceId=WW_12M_MEETING_ROOM,
+            resource_id=WW_12M_MEETING_ROOM,
             start=past_date.isoformat(),
             end=(past_date + timedelta(hours=8)).isoformat(),
             **TEST_BOOKING_PARTIAL,  # type:ignore[arg-type]
@@ -119,7 +119,7 @@ def test_booking_is_greater_than_30_days_in_future():
         future_date = TEST_BOOKING_START_DATE + timedelta(days=31)
         booking_request = CreateORNDMemberBookingRequest(
             organization=ORND_ORGANIZATION,
-            resourceId=WW_12M_MEETING_ROOM,
+            resource_id=WW_12M_MEETING_ROOM,
             start=future_date.isoformat(),
             end=(future_date + timedelta(hours=4)).isoformat(),
             **TEST_BOOKING_PARTIAL,  # type:ignore[arg-type]
