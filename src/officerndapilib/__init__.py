@@ -248,7 +248,7 @@ def get_booking_times_available_on_date(
                 minutes=interval - end_dt.minute % interval
             )
 
-        duration_min_intervals = (end_dt - start_dt).seconds / 1800
+        duration_min_intervals = (end_dt - start_dt).seconds / (60 * interval)
 
         booked_intervals.append(start_dt.strftime("%H:%M"))
         for _ in range(int(duration_min_intervals) - 1):
