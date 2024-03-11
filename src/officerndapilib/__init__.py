@@ -342,6 +342,46 @@ def validate_booking_creation(
         raise Exception(response.json()["message"])
 
 
+def delete_booking(token: str, organization: str, booking_id: str):
+    """Deletes a booking in OfficeRND"""
+
+    url = ORND_BASE_URL + organization + f"/bookings/{booking_id}"
+    headers = {
+        "accept": "application/json",
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {token}",
+    }
+
+    response = requests.delete(url, headers=headers)
+    if response.ok:
+        data = response.json()
+        return data
+    else:
+        raise Exception(response.json()["message"])
+
+
+def cancel_booking(
+    token: str, organization: str, booking_id: str, silent=False, skip_fee=False
+) -> ORNDBooking:
+    """Cancels a booking in OfficeRND"""
+
+    url = ORND_BASE_URL + organization + f"/bookings/{booking_id}/cancel"
+    url += f"?silent={silent}&skipFee={skip_fee}"
+
+    headers = {
+        "accept": "application/json",
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {token}",
+    }
+
+    response = requests.post(url, headers=headers)
+    if response.ok:
+        data: ORNDBooking = response.json()
+        return data
+    else:
+        raise Exception(response.json()["message"])
+
+
 def booking_checkout(
     token: str,
     organization: str,

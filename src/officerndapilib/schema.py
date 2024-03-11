@@ -113,6 +113,7 @@ class ORNDBookingFeeDetail(TypedDict):
 
 
 class ORNDBooking(TypedDict):
+    _id: str
     office: str
     orgnaization: str
     resourceId: str
