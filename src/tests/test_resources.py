@@ -13,7 +13,7 @@ from officerndapilib import (
 from officerndapilib.schema import ORNDAuth
 
 ORND_ORGANIZATION = os.getenv("ORND_ORG_SLUG", "")
-ORND_OFFICE_ID = "65416bf72db05a7176b467ac"
+ORND_OFFICE_ID = "65a1552838c1d613e355617d"
 
 ORND_AUTH = ORNDAuth(
     client_id=os.getenv("ORND_CLIENT_ID", ""),
@@ -34,8 +34,7 @@ def test_get_all_resources(token):
         token,
         ORND_ORGANIZATION,
         ORND_OFFICE_ID,
-        "team_room",
-        queries=[("availableFrom", "2024-01-02"), ("type", "meeting_room")],
+        "meeting_room",
     )
     pprint(resources, indent=2, width=120)
     assert isinstance(resources, list)

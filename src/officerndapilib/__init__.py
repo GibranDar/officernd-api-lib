@@ -255,8 +255,6 @@ def get_booking_times_available_on_date(
             start_dt += timedelta(minutes=interval)
             booked_intervals.append(start_dt.strftime("%H:%M"))
 
-        print(booked_intervals)
-
     # remove booked intervals from available times
     times = [time for time in times if time not in booked_intervals]
 
